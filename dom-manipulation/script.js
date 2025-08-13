@@ -149,3 +149,79 @@ function importFromJsonFile(event) {
 
   fileReader.readAsText(event.target.files[0]);
 }
+
+// --- Populate category dropdown dynamically ---
+function populateCategories() {
+  const categorySelect = document.getElementById('categoryFilter');
+  categorySelect.innerHTML = '<option value="all">All Categories</option>'; // reset
+
+  // Get unique categories from quotes array
+  const categories = [...new Set(quotes.map(q => q.category))];
+
+  categories.forEach(category => {
+    const option = document.createElement('option');
+    option.value = category;
+    option.textContent = category;
+    categorySelect.appendChild(option);
+  });
+
+  // Restore last selected category from localStorage if available
+  const savedCategory = localStorage.getItem('selectedCategory');
+  if (savedCategory) {
+    categorySelect.value = savedCategory;
+    filterQuotes();
+  }
+}
+
+// --- Filter quotes by selected category ---
+function filterQuotes() {
+  const selectedCategory = document.getElementById('categoryFilter').value;
+  localStorage.setItem('selectedCategory', selectedCategory); // save choice
+
+  let filteredQuotes = quotes;
+
+  if (selectedCategory !== 'all') {
+    filteredQuotes = quotes.filter(q => q.category === selectedCategory);
+  }
+
+  displayFilteredQuotes(filteredQuotes);
+}
+
+// --- Helper: Display filtered quotes in DOM ---
+function displayFilteredQuotes(filteredQuotes) {
+  const quoteContainer = document.getElementById('quoteDisplay');
+  quoteContainer.innerHTML = ''; // clear existing
+
+  if (filteredQuotes.length === 0) {
+    quoteContainer.textContent = 'No quotes found for this category.';
+    return;
+  }
+
+  filteredQuotes.forEach(quote => {
+    const p = document.createElement('p');
+    p.textContent = `"${quote.text}" - (${quote.category})`;
+    quoteContainer.appendChild(p);
+  });
+}
+
+// --- Update addQuote to refresh categories dynamically ---
+function addQuote() {
+  const text = document.getElementById('newQuoteText').value.trim();
+  const category = document.getElementById('newQuoteCategory').value.trim();
+
+  if (text && category) {
+    quotes.push({ text, category });
+    localStorage.setItem('quotes', JSON.stringify(quotes)); // optional persistence
+    document.getElementById('newQuoteText').value = '';
+    document.getElementById('newQuoteCategory').value = '';
+    alert('Quote added!');
+    populateCategories(); // refresh dropdown
+  } else {
+    alert('Please fill in both fields!');
+  }
+}
+
+// Call this when page loads to set up dropdown
+window.onload = function() {
+  populateCategories();
+};
