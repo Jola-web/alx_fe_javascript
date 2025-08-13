@@ -207,7 +207,7 @@ function displayFilteredQuotes(filteredQuotes) {
 const SERVER_URL = 'https://jsonplaceholder.typicode.com/posts';
 
 // Fetch quotes from server and merge with local
-async function fetchQuotesFromServer() {
+async function syncQuotes() {
   try {
     const response = await fetch(SERVER_URL);
     let serverQuotes = await response.json();
