@@ -282,7 +282,7 @@ async function addQuote() {
       method: 'POST',
       body: JSON.stringify(newQuote),
       headers: {
-        'Content-type': 'application/json; charset=UTF-8',
+        'Content-Type': 'application/json; charset=UTF-8',
       },
     });
     console.log('Quote sent to server:', newQuote);
