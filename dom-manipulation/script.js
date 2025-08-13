@@ -207,12 +207,11 @@ function displayFilteredQuotes(filteredQuotes) {
 const SERVER_URL = 'https://jsonplaceholder.typicode.com/posts';
 
 // Fetch quotes from server and merge with local
-async function syncWithServer() {
+async function fetchQuotesFromServer() {
   try {
     const response = await fetch(SERVER_URL);
     let serverQuotes = await response.json();
 
-    // Example: limit to first 10 for testing
     serverQuotes = serverQuotes.slice(0, 10).map(q => ({
       id: q.id,
       text: q.title,
@@ -223,17 +222,14 @@ async function syncWithServer() {
 
     let updated = false;
 
-    // Merge server quotes into local storage (server wins on conflict)
     serverQuotes.forEach(serverQuote => {
       const localIndex = localQuotes.findIndex(lq => lq.id === serverQuote.id);
       if (localIndex > -1) {
-        // Conflict: server takes precedence
         if (localQuotes[localIndex].text !== serverQuote.text) {
           localQuotes[localIndex] = serverQuote;
           updated = true;
         }
       } else {
-        // New quote from server
         localQuotes.push(serverQuote);
         updated = true;
       }
@@ -251,10 +247,10 @@ async function syncWithServer() {
 }
 
 // Simulate periodic sync every 60 seconds
-setInterval(syncWithServer, 60000);
+setInterval(fetchQuotesFromServer, 60000);
 
 // Example: Sync on page load
-syncWithServer();
+fetchQuotesFromServer();
 
 // --- Update addQuote to refresh categories dynamically ---
 async function addQuote() {
