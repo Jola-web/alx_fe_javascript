@@ -204,6 +204,59 @@ function displayFilteredQuotes(filteredQuotes) {
   });
 }
 
+const SERVER_URL = 'https://jsonplaceholder.typicode.com/posts';
+
+// Fetch quotes from server and merge with local
+async function syncWithServer() {
+  try {
+    const response = await fetch(SERVER_URL);
+    let serverQuotes = await response.json();
+
+    // Example: limit to first 10 for testing
+    serverQuotes = serverQuotes.slice(0, 10).map(q => ({
+      id: q.id,
+      text: q.title,
+      category: "Server Data"
+    }));
+
+    let localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+
+    let updated = false;
+
+    // Merge server quotes into local storage (server wins on conflict)
+    serverQuotes.forEach(serverQuote => {
+      const localIndex = localQuotes.findIndex(lq => lq.id === serverQuote.id);
+      if (localIndex > -1) {
+        // Conflict: server takes precedence
+        if (localQuotes[localIndex].text !== serverQuote.text) {
+          localQuotes[localIndex] = serverQuote;
+          updated = true;
+        }
+      } else {
+        // New quote from server
+        localQuotes.push(serverQuote);
+        updated = true;
+      }
+    });
+
+    if (updated) {
+      localStorage.setItem('quotes', JSON.stringify(localQuotes));
+      populateCategories();
+      displayQuotes(localQuotes);
+      alert('Quotes synced from server. Some updates were applied.');
+    }
+  } catch (error) {
+    console.error('Error syncing with server:', error);
+  }
+}
+
+// Simulate periodic sync every 60 seconds
+setInterval(syncWithServer, 60000);
+
+// Example: Sync on page load
+syncWithServer();
+
+
 // --- Update addQuote to refresh categories dynamically ---
 function addQuote() {
   const text = document.getElementById('newQuoteText').value.trim();
@@ -225,3 +278,42 @@ function addQuote() {
 window.onload = function() {
   populateCategories();
 };
+
+async function addQuote() {
+  const quoteText = document.getElementById('quoteText').value;
+  const category = document.getElementById('quoteCategory').value;
+
+  if (!quoteText || !category) {
+    alert('Please enter both quote and category');
+    return;
+  }
+
+  const newQuote = {
+    id: Date.now(),
+    text: quoteText,
+    category: category
+  };
+
+  // Save locally
+  let quotes = JSON.parse(localStorage.getItem('quotes')) || [];
+  quotes.push(newQuote);
+  localStorage.setItem('quotes', JSON.stringify(quotes));
+
+  populateCategories();
+  displayQuotes(quotes);
+
+  // Simulate POST to server
+  try {
+    await fetch(SERVER_URL, {
+      method: 'POST',
+      body: JSON.stringify(newQuote),
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+      },
+    });
+    console.log('Quote sent to server:', newQuote);
+  } catch (error) {
+    console.error('Error sending quote to server:', error);
+  }
+}
+
