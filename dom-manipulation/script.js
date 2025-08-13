@@ -204,6 +204,28 @@ function displayFilteredQuotes(filteredQuotes) {
   });
 }
 
+// --- Update addQuote to refresh categories dynamically ---
+function addQuote() {
+  const text = document.getElementById('newQuoteText').value.trim();
+  const category = document.getElementById('newQuoteCategory').value.trim();
+
+  if (text && category) {
+    quotes.push({ text, category });
+    localStorage.setItem('quotes', JSON.stringify(quotes)); // optional persistence
+    document.getElementById('newQuoteText').value = '';
+    document.getElementById('newQuoteCategory').value = '';
+    alert('Quote added!');
+    populateCategories(); // refresh dropdown
+  } else {
+    alert('Please fill in both fields!');
+  }
+}
+
+// Call this when page loads to set up dropdown
+window.onload = function() {
+  populateCategories();
+};
+
 const SERVER_URL = 'https://jsonplaceholder.typicode.com/posts';
 
 // Fetch quotes from server and merge with local
@@ -256,29 +278,6 @@ setInterval(syncWithServer, 60000);
 // Example: Sync on page load
 syncWithServer();
 
-
-// --- Update addQuote to refresh categories dynamically ---
-function addQuote() {
-  const text = document.getElementById('newQuoteText').value.trim();
-  const category = document.getElementById('newQuoteCategory').value.trim();
-
-  if (text && category) {
-    quotes.push({ text, category });
-    localStorage.setItem('quotes', JSON.stringify(quotes)); // optional persistence
-    document.getElementById('newQuoteText').value = '';
-    document.getElementById('newQuoteCategory').value = '';
-    alert('Quote added!');
-    populateCategories(); // refresh dropdown
-  } else {
-    alert('Please fill in both fields!');
-  }
-}
-
-// Call this when page loads to set up dropdown
-window.onload = function() {
-  populateCategories();
-};
-
 async function addQuote() {
   const quoteText = document.getElementById('quoteText').value;
   const category = document.getElementById('quoteCategory').value;
@@ -316,4 +315,3 @@ async function addQuote() {
     console.error('Error sending quote to server:', error);
   }
 }
-
