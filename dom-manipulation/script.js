@@ -204,7 +204,6 @@ function displayFilteredQuotes(filteredQuotes) {
   });
 }
 
-
 // --- Update addQuote to refresh categories dynamically ---
 function addQuote() {
   const text = document.getElementById('newQuoteText').value.trim();
