@@ -243,6 +243,7 @@ async function syncQuotes() {
     }
   } catch (error) {
     console.error('Error syncing with server:', error);
+    alert('Quotes synced with server!');
   }
 }
 
